@@ -1,0 +1,155 @@
+/* ---------- Mini cart popover (dropdown khi bấm icon giỏ trên navbar) ---------- */
+/* Dán đoạn CSS này vào file styles.css của bạn (ví dụ ngay trước hoặc sau .navbar-btn) */
+
+.mini-cart-popover {
+  position: absolute;
+  top: calc(100% + 16px);
+  right: 0;
+  width: 340px;
+  max-height: 420px;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-container, #fff);
+  border-radius: var(--radius-md, 16px);
+  box-shadow: var(--shadow-paper, 0 12px 32px rgba(68, 42, 34, 0.22));
+  z-index: 60;
+  overflow: hidden;
+}
+
+.mini-cart-popover__arrow {
+  position: absolute;
+  top: -8px;
+  right: 20px;
+  width: 16px;
+  height: 16px;
+  background: var(--surface-container, #fff);
+  transform: rotate(45deg);
+  box-shadow: -3px -3px 6px rgba(68, 42, 34, 0.05);
+}
+
+.mini-cart-popover__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid rgba(122, 95, 77, 0.12);
+}
+
+.mini-cart-popover__header h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--primary);
+}
+
+.mini-cart-popover__close {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-faint);
+  line-height: 1;
+}
+
+.mini-cart-popover__hint,
+.mini-cart-popover__empty {
+  padding: 24px 18px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 14px;
+}
+
+.mini-cart-popover__empty .btn-tape {
+  display: inline-block;
+  margin-top: 10px;
+}
+
+.mini-cart-popover__list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 260px;
+}
+
+.mini-cart-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.mini-cart-row__photo {
+  width: 52px;
+  height: 52px;
+  flex: none;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--secondary-fixed);
+}
+
+.mini-cart-row__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mini-cart-row__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.mini-cart-row__name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-hi);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-cart-row__note {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.mini-cart-row__price {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.mini-cart-popover__footer {
+  padding: 14px 18px 18px;
+  border-top: 1px solid rgba(122, 95, 77, 0.12);
+}
+
+.mini-cart-popover__subtotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.mini-cart-popover__subtotal strong {
+  color: var(--primary);
+  font-family: var(--font-display);
+}
+
+/* Hiệu ứng icon giỏ hàng "nảy" lên khi ảnh sản phẩm bay tới (dùng cùng flyToCart.js) */
+.navbar-cart--bump {
+  animation: navbar-cart-bump 0.75s ease;
+}
+
+@keyframes navbar-cart-bump {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.35) rotate(-8deg); }
+  50% { transform: scale(0.92) rotate(6deg); }
+  70% { transform: scale(1.12) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0); }
+}
