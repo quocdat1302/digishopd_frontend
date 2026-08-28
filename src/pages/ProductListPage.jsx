@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import { productApi } from "../api/productApi";
 import { toApiError } from "../api/client";
 import { formatPrice, resolveImageUrl } from "../utils/formatters";
 import useDocumentTitle from "../hooks/useDocumentTitle";
+import { useWishlist } from "../context/WishlistContext";
+import { useAuth } from "../context/AuthContext";
 
 const PAGE_SIZE = 6;
 
@@ -57,6 +59,9 @@ function toggleInList(list, value) {
 
 export default function ProductListPage() {
   useDocumentTitle("Sản phẩm");
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const { isLiked, toggleLike } = useWishlist();
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -189,6 +194,18 @@ export default function ProductListPage() {
     else next.delete("brand");
     next.set("page", "1");
     setSearchParams(next);
+  };
+
+  const handleToggleLike = (e, productId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAuthenticated) {
+      navigate("/login", { state: { from: window.location.pathname + window.location.search } });
+      return;
+    }
+    toggleLike(productId).catch(() => {
+      // Lỗi mạng/hết hạn đăng nhập: WishlistContext đã tự rollback UI, không cần xử lý thêm ở đây.
+    });
   };
 
   const setTransactionType = (value) => {
@@ -387,8 +404,13 @@ export default function ProductListPage() {
                             src={resolveImageUrl(product.imageUrl) || "https://via.placeholder.com/640x640?text=DigiShop"}
                             alt={product.name}
                           />
-                          <button type="button" className="polaroid-card__like" aria-label="Yêu thích" onClick={(e) => e.preventDefault()}>
-                            ♡
+                          <button
+                            type="button"
+                            className={`polaroid-card__like${isLiked(product.id) ? " polaroid-card__like--active" : ""}`}
+                            aria-label={isLiked(product.id) ? "Bỏ yêu thích" : "Yêu thích"}
+                            onClick={(e) => handleToggleLike(e, product.id)}
+                          >
+                            {isLiked(product.id) ? "♥" : "♡"}
                           </button>
                           {product.isHot && <span className="washi-flag washi-flag--hot">Best Seller</span>}
                           {!product.isHot && product.isNew && <span className="washi-flag washi-flag--new">Mới về</span>}

@@ -3645,6 +3645,16 @@ form.auth-form {
   justify-content: center;
   cursor: pointer;
   z-index: 3;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.polaroid-card__like:hover {
+  transform: scale(1.1);
+}
+
+.polaroid-card__like--active {
+  background: var(--primary);
+  color: #ffffff;
 }
 
 .washi-flag {
