@@ -184,7 +184,7 @@ export default function HomePage() {
                 {quickCategories.map((category) => (
                   <Link
                     key={category.id}
-                    to={`/products?${category.type}=${encodeURIComponent(category.name)}`}
+                    to={`/products?${category.type === "brand" ? "brand" : "type"}=${encodeURIComponent(category.name)}`}
                     className="home-category-shortcuts__item"
                   >
                     {category.imageUrl ? (
