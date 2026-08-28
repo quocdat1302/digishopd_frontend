@@ -28,14 +28,18 @@ export default function HomePage() {
 
   const loadData = async () => {
     try {
-      const [products, cats, promos, feedbacks] = await Promise.all([
+      const [products, brandCats, typeCats, promos, feedbacks] = await Promise.all([
         productApi.getHotProducts(),
-        categoryApi.getAllCategories(),
+        categoryApi.getBrands(),
+        categoryApi.getProductTypes(),
         promotionApi.getActivePromotions(),
         feedbackApi.getTopFeedbacks(),
       ]);
       setFeaturedProducts(products);
-      setCategories(cats);
+      // Gộp brand + loại sản phẩm, mỗi bên đã được backend tính lại productCount
+      // theo số sản phẩm đang bán thực tế (xem CategoryService.getBrands/getProductTypes),
+      // khác với /categories (getAllCategories) chỉ trả số liệu seed cũ không tự cập nhật.
+      setCategories([...brandCats, ...typeCats]);
       setPromotions(promos);
       setCustomerFeedbacks(feedbacks);
 
