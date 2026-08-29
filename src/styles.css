@@ -2699,7 +2699,16 @@ form.auth-form {
   .navbar-actions {
     order: 3;
     justify-content: flex-end;
-    gap: 6px;
+    gap: 8px;
+  }
+
+  .navbar-user {
+    padding: 0;
+    gap: 0;
+  }
+
+  .user-menu__caret {
+    display: none;
   }
 
   .navbar-menu,
@@ -4931,6 +4940,25 @@ form.auth-form {
   .detail-card__heading {
     flex-direction: column;
     align-items: flex-start;
+    gap: 14px;
+  }
+
+  .catalog-toolbar {
+    margin-top: 22px;
+  }
+
+  .catalog-field--sort {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .catalog-field--sort select {
+    width: 100%;
+    min-height: 46px;
+    padding: 0 14px;
+    border-radius: var(--radius-md);
+    background: var(--surface-container-lowest);
+    box-shadow: var(--shadow-paper);
   }
 
   .catalog-mode-switch {
