@@ -16,6 +16,17 @@
   overflow: hidden;
 }
 
+@media (max-width: 640px) {
+  .mini-cart-popover {
+    position: fixed;
+    top: 78px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-height: calc(100vh - 100px);
+  }
+}
+
 .mini-cart-popover__arrow {
   position: absolute;
   top: -8px;

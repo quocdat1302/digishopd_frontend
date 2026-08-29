@@ -2203,6 +2203,20 @@ form.auth-form {
   z-index: 400;
 }
 
+@media (max-width: 640px) {
+  /* Trên mobile, panel neo theo nút chuông (right:0 + width cố định) rất dễ tràn ra
+     ngoài mép trái màn hình vì chuông không nằm sát cạnh phải nhất. Chuyển sang
+     position:fixed neo theo viewport để luôn nằm gọn trong màn hình bất kể vị trí nút. */
+  .notification-bell__panel {
+    position: fixed;
+    top: 78px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-height: calc(100vh - 100px);
+  }
+}
+
 .notification-bell__header {
   display: flex;
   justify-content: space-between;
@@ -2378,6 +2392,16 @@ form.auth-form {
   flex-direction: column;
   gap: 2px;
   z-index: 400;
+}
+
+@media (max-width: 640px) {
+  .user-menu__panel {
+    position: fixed;
+    top: 78px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
 }
 
 .user-menu__panel a,
