@@ -20,6 +20,8 @@ export default function NavBar() {
   const cartRef = useRef(null);
   const [brands, setBrands] = useState([]);
   const [types, setTypes] = useState([]);
+  // Menu hamburger cho mobile: đóng/mở toàn bộ navbar-menu + navbar-search dạng dropdown xổ xuống.
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -46,6 +48,7 @@ export default function NavBar() {
     e.preventDefault();
     const query = keyword.trim();
     navigate(query ? `/products?keyword=${encodeURIComponent(query)}` : "/products");
+    setMobileMenuOpen(false);
   };
 
   return (
@@ -55,10 +58,22 @@ export default function NavBar() {
           <img src="/assets/logoo.png" alt="DigiShop" className="navbar-brand__logo" />
         </Link>
 
-        <div className="navbar-menu">
-          <Link to="/" className="navbar-link">Cửa hàng</Link>
-          <Link to="/products?transactionType=rent" className="navbar-link">Thuê máy</Link>
-          <Link to="/products?transactionType=buy" className="navbar-link">Mua máy</Link>
+        <button
+          type="button"
+          className="navbar-hamburger"
+          aria-label={mobileMenuOpen ? "Đóng menu" : "Mở menu"}
+          aria-expanded={mobileMenuOpen}
+          onClick={() => setMobileMenuOpen((v) => !v)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+
+        <div className={`navbar-menu${mobileMenuOpen ? " navbar-menu--open" : ""}`}>
+          <Link to="/" className="navbar-link" onClick={() => setMobileMenuOpen(false)}>Cửa hàng</Link>
+          <Link to="/products?transactionType=rent" className="navbar-link" onClick={() => setMobileMenuOpen(false)}>Thuê máy</Link>
+          <Link to="/products?transactionType=buy" className="navbar-link" onClick={() => setMobileMenuOpen(false)}>Mua máy</Link>
 
           <div className="navbar-dropdown" ref={catalogRef}>
             <button
@@ -73,7 +88,7 @@ export default function NavBar() {
                 <div className="navbar-dropdown__col">
                   <span className="navbar-dropdown__heading">Theo hãng</span>
                   {brands.map((b) => (
-                    <Link key={b.id} to={`/products?brand=${encodeURIComponent(b.name)}`} onClick={() => setCatalogOpen(false)}>
+                    <Link key={b.id} to={`/products?brand=${encodeURIComponent(b.name)}`} onClick={() => { setCatalogOpen(false); setMobileMenuOpen(false); }}>
                       {b.name} <em>({b.productCount})</em>
                     </Link>
                   ))}
@@ -81,13 +96,13 @@ export default function NavBar() {
                 <div className="navbar-dropdown__col">
                   <span className="navbar-dropdown__heading">Theo loại máy</span>
                   {types.map((t) => (
-                    <Link key={t.id} to={`/products?type=${encodeURIComponent(t.name)}`} onClick={() => setCatalogOpen(false)}>
+                    <Link key={t.id} to={`/products?type=${encodeURIComponent(t.name)}`} onClick={() => { setCatalogOpen(false); setMobileMenuOpen(false); }}>
                       {t.name} <em>({t.productCount})</em>
                     </Link>
                   ))}
                 </div>
                 <div className="navbar-dropdown__col">
-                  <Link to="/products" className="navbar-dropdown__all" onClick={() => setCatalogOpen(false)}>
+                  <Link to="/products" className="navbar-dropdown__all" onClick={() => { setCatalogOpen(false); setMobileMenuOpen(false); }}>
                     Xem tất cả sản phẩm →
                   </Link>
                 </div>
@@ -95,8 +110,8 @@ export default function NavBar() {
             )}
           </div>
 
-          <Link to="/feedback" className="navbar-link">Kỷ niệm</Link>
-          <Link to="/quy-trinh" className="navbar-link">Quy trình</Link>
+          <Link to="/feedback" className="navbar-link" onClick={() => setMobileMenuOpen(false)}>Kỷ niệm</Link>
+          <Link to="/quy-trinh" className="navbar-link" onClick={() => setMobileMenuOpen(false)}>Quy trình</Link>
         </div>
 
         <form className="navbar-search" onSubmit={handleSearchSubmit}>
