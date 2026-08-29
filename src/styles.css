@@ -146,6 +146,25 @@ a {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+
+  /* Marquee chữ chạy dựa hoàn toàn vào animation để không bị cắt cụt giữa từ khi
+     animation tắt (do thiết bị bật "Giảm chuyển động"): thay vì để 4 bản sao text
+     đứng yên và tràn ra ngoài khung, chỉ hiện 1 dòng gọn, cắt bằng dấu "...". */
+  .home-banner-marquee__track {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .home-banner-marquee__item:not(:first-child) {
+    display: none;
+  }
+
+  .home-banner-marquee__item:first-child {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 /* =========================================================================
@@ -1117,7 +1136,7 @@ form.auth-form {
   border-top: 1px solid rgba(0,0,0,0.08);
   border-bottom: 1px solid rgba(0,0,0,0.08);
 }
-.home-banner-marquee__track { display: flex; width: max-content; gap: 0; align-items: center; padding: 10px 0; white-space: nowrap; }
+.home-banner-marquee__track { display: flex; width: max-content; gap: 0; align-items: center; padding: 10px 0; white-space: nowrap; will-change: transform; }
 .home-banner-marquee__item {
   display: inline-block;
   flex-shrink: 0;

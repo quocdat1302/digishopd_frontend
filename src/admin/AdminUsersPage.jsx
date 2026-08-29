@@ -37,6 +37,12 @@ export default function AdminUsersPage() {
   const [sendError, setSendError] = useState(null);
   const [sendSuccess, setSendSuccess] = useState(false);
 
+  // Xoá cứng tài khoản — hành động không thể hoàn tác, bắt gõ đúng email để xác nhận (tránh bấm nhầm).
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
+
   const load = () => {
     setLoading(true);
     setError(null);
@@ -101,6 +107,34 @@ export default function AdminUsersPage() {
       alert(toApiError(err).message);
     } finally {
       setBusyId(null);
+    }
+  };
+
+  const openDeleteConfirm = (targetUser) => {
+    setDeleteTarget(targetUser);
+    setDeleteConfirmText("");
+    setDeleteError(null);
+  };
+
+  const handleDeleteUser = async () => {
+    if (deleteConfirmText.trim().toLowerCase() !== deleteTarget.email.toLowerCase()) {
+      setDeleteError("Email xác nhận không khớp.");
+      return;
+    }
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await userApi.deleteUser(deleteTarget.id);
+      setPageData((prev) => ({
+        ...prev,
+        content: prev.content.filter((u) => u.id !== deleteTarget.id),
+        totalElements: (prev.totalElements ?? 1) - 1,
+      }));
+      setDeleteTarget(null);
+    } catch (err) {
+      setDeleteError(toApiError(err).message);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -222,6 +256,15 @@ export default function AdminUsersPage() {
                           <option value="STAFF">Nhân viên</option>
                           <option value="ADMIN">Admin</option>
                         </select>
+                        <button
+                          type="button"
+                          className="admin2-icon-btn admin2-icon-btn--danger"
+                          onClick={() => openDeleteConfirm(u)}
+                          disabled={u.id === currentUser?.id}
+                          title={u.id === currentUser?.id ? "Không thể tự xoá tài khoản của chính mình" : "Xoá tài khoản"}
+                        >
+                          🗑 Xoá
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -274,6 +317,44 @@ export default function AdminUsersPage() {
                   {sending ? "Đang gửi..." : "Gửi"}
                 </button>
               </form>
+            </div>
+          </div>
+        </DrawerPortal>
+      )}
+
+      {deleteTarget && (
+        <DrawerPortal>
+          <div className="rental-calendar-popover-backdrop" onClick={() => !deleting && setDeleteTarget(null)}>
+            <div className="rental-calendar-popover" onClick={(e) => e.stopPropagation()}>
+              <div className="rental-calendar-popover__head">
+                <span style={{ background: "#8a2c2c", color: "#fff" }}>⚠ Xoá tài khoản</span>
+                <button type="button" onClick={() => setDeleteTarget(null)} aria-label="Đóng" disabled={deleting}>✕</button>
+              </div>
+              <h3>Xoá "{deleteTarget.name}" ({deleteTarget.email})?</h3>
+              <p className="profile-hint profile-hint--error" style={{ marginBottom: 12 }}>
+                Hành động này XOÁ VĨNH VIỄN tài khoản cùng toàn bộ đơn hàng, giỏ hàng, đánh giá,
+                sản phẩm yêu thích, thông báo, tin nhắn chat và hợp đồng thuê liên quan.
+                Không thể hoàn tác.
+              </p>
+              <label className="admin-field" style={{ display: "block", marginBottom: 10 }}>
+                <span>Gõ chính xác email <strong>{deleteTarget.email}</strong> để xác nhận</span>
+                <input
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder={deleteTarget.email}
+                  autoFocus
+                />
+              </label>
+              {deleteError && <p className="profile-hint profile-hint--error">{deleteError}</p>}
+              <button
+                type="button"
+                className="btn btn-shutter"
+                style={{ width: "100%", background: "#8a2c2c" }}
+                disabled={deleting || deleteConfirmText.trim().toLowerCase() !== deleteTarget.email.toLowerCase()}
+                onClick={handleDeleteUser}
+              >
+                {deleting ? "Đang xoá..." : "Xoá vĩnh viễn"}
+              </button>
             </div>
           </div>
         </DrawerPortal>

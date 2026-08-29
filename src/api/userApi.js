@@ -14,4 +14,6 @@ export const userApi = {
       .then((r) => r.data),
 
   updateUserRole: (userId, role) => apiClient.put(`/admin/users/${userId}/role`, { role }).then((r) => r.data),
+
+  deleteUser: (userId) => apiClient.delete(`/admin/users/${userId}`),
 };
