@@ -4943,35 +4943,53 @@ form.auth-form {
 }
 
 @media (max-width: 820px) {
-  .catalog-grid,
   .review-grid {
     grid-template-columns: 1fr;
   }
 
+  .catalog-grid,
   .catalog-grid--compact {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px 12px;
   }
 
+  .catalog-grid .polaroid-card__caption,
   .catalog-grid--compact .polaroid-card__caption {
     padding: 12px 4px 4px;
   }
 
+  .catalog-grid .polaroid-card__caption h3,
   .catalog-grid--compact .polaroid-card__caption h3 {
     font-size: 14px;
     margin-bottom: 4px;
   }
 
+  .catalog-grid .polaroid-card__meta,
   .catalog-grid--compact .polaroid-card__meta {
     font-size: 10px;
   }
 
+  .catalog-grid .polaroid-card__price,
   .catalog-grid--compact .polaroid-card__price {
     font-size: 12px;
   }
 
+  .catalog-grid .polaroid-card__price strong,
   .catalog-grid--compact .polaroid-card__price strong {
     font-size: 14px;
+  }
+
+  .catalog-grid .polaroid-card__subcopy {
+    display: none;
+  }
+
+  .catalog-grid .polaroid-card__actions {
+    padding: 8px 4px 0;
+  }
+
+  .catalog-grid .btn-tape {
+    font-size: 12px;
+    padding: 10px 8px;
   }
 
   .calendar-grid {
