@@ -6,6 +6,7 @@ import { categoryApi } from "../api/categoryApi";
 import NotificationBell from "./NotificationBell";
 import MiniCartPopover from "./MiniCartPopover";
 import { resolveImageUrl } from "../utils/formatters";
+import { IconUser, IconBox, IconDashboard, IconLogout } from "../admin/AdminIcons";
 import "../mini-cart-popover.css";
 
 export default function NavBar() {
@@ -145,14 +146,24 @@ export default function NavBar() {
                 </button>
                 {menuOpen && (
                   <div className="user-menu__panel">
-                    <Link to="/profile" onClick={() => setMenuOpen(false)}>👤 Hồ sơ của tôi</Link>
-                    <Link to="/orders" onClick={() => setMenuOpen(false)}>📦 Đơn hàng của tôi</Link>
+                    <Link to="/profile" onClick={() => setMenuOpen(false)}>
+                      <IconUser className="user-menu__icon" aria-hidden="true" /> Hồ sơ của tôi
+                    </Link>
+                    <Link to="/orders" onClick={() => setMenuOpen(false)}>
+                      <IconBox className="user-menu__icon" aria-hidden="true" /> Đơn hàng của tôi
+                    </Link>
                     {isAdminOrStaff && (
                       <Link to={isAdmin ? "/admin/dashboard" : "/admin/orders"} onClick={() => setMenuOpen(false)}>
-                        {isAdmin ? "📊 Bảng điều khiển Admin" : "📦 Khu vực Nhân viên"}
+                        {isAdmin ? (
+                          <><IconDashboard className="user-menu__icon" aria-hidden="true" /> Bảng điều khiển Admin</>
+                        ) : (
+                          <><IconBox className="user-menu__icon" aria-hidden="true" /> Khu vực Nhân viên</>
+                        )}
                       </Link>
                     )}
-                    <button type="button" onClick={handleLogout}>🚪 Đăng xuất</button>
+                    <button type="button" onClick={handleLogout}>
+                      <IconLogout className="user-menu__icon" aria-hidden="true" /> Đăng xuất
+                    </button>
                   </div>
                 )}
               </div>

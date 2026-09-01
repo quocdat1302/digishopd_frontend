@@ -206,3 +206,13 @@ export function IconUser(props) {
     </svg>
   );
 }
+
+export function IconLogout(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M9 20H5.5A1.5 1.5 0 0 1 4 18.5v-13A1.5 1.5 0 0 1 5.5 4H9" />
+      <path d="M14.5 16 19 12l-4.5-4" />
+      <path d="M19 12H9" />
+    </svg>
+  );
+}
