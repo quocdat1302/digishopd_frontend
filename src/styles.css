@@ -7488,6 +7488,19 @@ form.auth-form {
     background: transparent;
 }
 
+.admin2-toolbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin2-reorder-hint {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-faint);
+    font-family: var(--font-handwriting);
+}
+
 .btn-stamped {
     border: 2px solid var(--primary);
     background: var(--tertiary);
@@ -7555,6 +7568,36 @@ form.auth-form {
 
 .admin2-table tbody tr:last-child td {
     border-bottom: none;
+}
+
+.admin2-row--dragover {
+    background: rgba(92, 19, 51, 0.06) !important;
+}
+
+.admin2-drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px dashed rgba(68, 42, 34, 0.35);
+    background: rgba(255, 255, 255, 0.8);
+    cursor: grab;
+    user-select: none;
+}
+
+.admin2-drag-handle.is-dragging {
+    cursor: grabbing;
+    opacity: 0.65;
+}
+
+.admin2-order-index {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--text-faint);
+    font-family: var(--font-handwriting);
 }
 
 .admin2-product-cell {

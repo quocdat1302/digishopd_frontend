@@ -24,6 +24,9 @@ export const productApi = {
 
   deleteProduct: (id) => apiClient.delete(`/products/admin/${id}`),
 
+  reorderProducts: (orderedIds) =>
+    apiClient.put("/products/admin/reorder", { orderedIds }).then((r) => r.data),
+
   uploadProductImage: (id, file) => {
     const formData = new FormData();
     formData.append("file", file);

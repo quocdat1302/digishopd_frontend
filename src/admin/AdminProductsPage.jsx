@@ -301,12 +301,18 @@ export default function AdminProductsPage() {
   const [brandFilter, setBrandFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState(""); // "" | "active" | "inactive"
+  const [sortKey, setSortKey] = useState("displayOrder"); // displayOrder | idDesc | idAsc | nameAsc
   const [page, setPage] = useState(1);
   const [editingProduct, setEditingProduct] = useState(undefined); // undefined = closed, null = create, object = edit
   const [busyId, setBusyId] = useState(null);
   // Map productId -> { reservedForFutureRentals, availableToSell } — để hiển thị vì sao 1 sản phẩm
   // còn tồn kho nhưng không bán được (đang bị đơn thuê tương lai giữ chỗ). Xem OrderService.
   const [stockBreakdown, setStockBreakdown] = useState({});
+  const [manualMode, setManualMode] = useState(false);
+  const [manualItems, setManualItems] = useState([]);
+  const [draggingId, setDraggingId] = useState(null);
+  const [dragOverId, setDragOverId] = useState(null);
+  const [savingOrder, setSavingOrder] = useState(false);
 
   // Nếu người dùng gõ tìm kiếm ở thanh trên đầu trang (AdminLayout), đồng bộ vào ô lọc ở đây
   // và dọn query string để URL không "kẹt" giá trị cũ khi người dùng gõ tiếp tại chỗ.
@@ -369,9 +375,99 @@ export default function AdminProductsPage() {
     });
   }, [products, keyword, brandFilter, typeFilter, statusFilter]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const sortedFiltered = useMemo(() => {
+    const arr = [...filtered];
+    const byDisplayOrder = (a, b) => {
+      const ao = a.displayOrder ?? 999999;
+      const bo = b.displayOrder ?? 999999;
+      if (ao !== bo) return ao - bo;
+      return (b.id ?? 0) - (a.id ?? 0);
+    };
+    switch (sortKey) {
+      case "idAsc":
+        arr.sort((a, b) => (a.id ?? 0) - (b.id ?? 0));
+        break;
+      case "nameAsc":
+        arr.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "vi", { sensitivity: "base" }));
+        break;
+      case "idDesc":
+        arr.sort((a, b) => (b.id ?? 0) - (a.id ?? 0));
+        break;
+      case "displayOrder":
+      default:
+        arr.sort(byDisplayOrder);
+        break;
+    }
+    return arr;
+  }, [filtered, sortKey]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedFiltered.length / PAGE_SIZE));
   const pageSafe = Math.min(page, totalPages);
-  const pageItems = filtered.slice((pageSafe - 1) * PAGE_SIZE, pageSafe * PAGE_SIZE);
+  const pageItems = sortedFiltered.slice((pageSafe - 1) * PAGE_SIZE, pageSafe * PAGE_SIZE);
+
+  const baseManualList = useMemo(() => {
+    const byDisplayOrder = (a, b) => {
+      const ao = a.displayOrder ?? 999999;
+      const bo = b.displayOrder ?? 999999;
+      if (ao !== bo) return ao - bo;
+      return (b.id ?? 0) - (a.id ?? 0);
+    };
+    return [...products].sort(byDisplayOrder);
+  }, [products]);
+
+  const moveItem = (list, fromIndex, toIndex) => {
+    const copy = [...list];
+    const [item] = copy.splice(fromIndex, 1);
+    copy.splice(toIndex, 0, item);
+    return copy;
+  };
+
+  const saveManualOrder = async (items) => {
+    setSavingOrder(true);
+    try {
+      await productApi.reorderProducts(items.map((p) => p.id));
+      // cập nhật displayOrder trong state để UI ngoài manual mode khớp ngay
+      const orderMap = {};
+      items.forEach((p, idx) => {
+        orderMap[p.id] = idx + 1;
+      });
+      setProducts((prev) => prev.map((p) => (orderMap[p.id] ? { ...p, displayOrder: orderMap[p.id] } : p)));
+    } catch (err) {
+      alert(toApiError(err).message);
+      // reload để khớp server
+      loadProducts();
+    } finally {
+      setSavingOrder(false);
+    }
+  };
+
+  const handleDragStart = (e, productId) => {
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", String(productId));
+    setDraggingId(productId);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingId(null);
+    setDragOverId(null);
+  };
+
+  const handleDragOver = (e, overId) => {
+    e.preventDefault();
+    setDragOverId(overId);
+  };
+
+  const handleDrop = async (e, dropId) => {
+    e.preventDefault();
+    const dragId = draggingId ?? Number(e.dataTransfer.getData("text/plain"));
+    if (!dragId || dragId === dropId) return;
+    const fromIndex = manualItems.findIndex((p) => p.id === dragId);
+    const toIndex = manualItems.findIndex((p) => p.id === dropId);
+    if (fromIndex < 0 || toIndex < 0) return;
+    const next = moveItem(manualItems, fromIndex, toIndex);
+    setManualItems(next);
+    await saveManualOrder(next);
+  };
 
   const handleDeactivate = async (product) => {
     if (!window.confirm(`Ngừng bán/cho thuê "${product.name}"?`)) return;
@@ -437,34 +533,66 @@ export default function AdminProductsPage() {
         <div>
           <h1>Danh sách Kỷ vật</h1>
           <div className="admin2-toolbar__filters">
-            <select value={brandFilter} onChange={(e) => { setBrandFilter(e.target.value); setPage(1); }}>
+            <select value={brandFilter} onChange={(e) => { setBrandFilter(e.target.value); setPage(1); }} disabled={manualMode}>
               <option value="">Tất cả thương hiệu</option>
               {brands.map((b) => (
                 <option key={b} value={b}>{b}</option>
               ))}
             </select>
-            <select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}>
+            <select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }} disabled={manualMode}>
               <option value="">Tất cả danh mục</option>
               {types.map((t) => (
                 <option key={t} value={t}>{t}</option>
               ))}
             </select>
-            <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}>
+            <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} disabled={manualMode}>
               <option value="">Mọi trạng thái</option>
               <option value="active">Đang bán/cho thuê</option>
               <option value="inactive">Đã ngừng bán</option>
+            </select>
+            <select value={sortKey} onChange={(e) => { setSortKey(e.target.value); setPage(1); }} disabled={manualMode}>
+              <option value="displayOrder">Theo thứ tự hiển thị</option>
+              <option value="idDesc">Mới nhất (ID giảm)</option>
+              <option value="idAsc">Cũ nhất (ID tăng)</option>
+              <option value="nameAsc">Tên A → Z</option>
             </select>
             <input
               className="admin-search"
               value={keyword}
               onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
+              disabled={manualMode}
               placeholder="Tìm theo tên..."
             />
           </div>
+          {manualMode && (
+            <div className="admin2-reorder-hint">
+              Kéo biểu tượng ☰ để đổi vị trí. {savingOrder ? "Đang lưu thứ tự..." : "Thứ tự sẽ tự lưu sau khi thả."}
+            </div>
+          )}
         </div>
-        <button type="button" className="btn-stamped" onClick={() => setEditingProduct(null)}>
-          🖼 Thêm kỷ vật mới
-        </button>
+        <div className="admin2-toolbar__actions">
+          <button
+            type="button"
+            className="btn btn-outline-shutter"
+            onClick={() => {
+              if (!manualMode) {
+                setManualItems(baseManualList);
+                setManualMode(true);
+              } else {
+                setManualMode(false);
+                setDraggingId(null);
+                setDragOverId(null);
+              }
+            }}
+            disabled={loading || !!error}
+            title="Sắp xếp thủ công bằng kéo-thả"
+          >
+            ↕ Kéo sắp xếp
+          </button>
+          <button type="button" className="btn-stamped" onClick={() => setEditingProduct(null)} disabled={manualMode}>
+            🖼 Thêm kỷ vật mới
+          </button>
+        </div>
       </div>
 
       {loading && <div className="catalog-state">Đang tải danh sách sản phẩm...</div>}
@@ -476,6 +604,7 @@ export default function AdminProductsPage() {
             <table className="admin2-table">
               <thead>
                 <tr>
+                  {manualMode && <th className="admin2-table__center" style={{ width: 80 }}>Thứ tự</th>}
                   <th>Sản phẩm</th>
                   <th>Hãng / Loại</th>
                   <th>Giá bán / Giá thuê</th>
@@ -486,12 +615,32 @@ export default function AdminProductsPage() {
                 </tr>
               </thead>
               <tbody>
-                {pageItems.map((product, index) => {
+                {(manualMode ? manualItems : pageItems).map((product, index) => {
                   const stock = Number(product.stockQuantity ?? 0);
                   const isLowStock = product.isAvailable && stock <= LOW_STOCK_THRESHOLD;
                   const breakdown = stockBreakdown[product.id];
                   return (
-                    <tr key={product.id}>
+                    <tr
+                      key={product.id}
+                      className={manualMode && dragOverId === product.id ? "admin2-row--dragover" : ""}
+                      onDragOver={manualMode ? (e) => handleDragOver(e, product.id) : undefined}
+                      onDrop={manualMode ? (e) => handleDrop(e, product.id) : undefined}
+                    >
+                      {manualMode && (
+                        <td className="admin2-table__center">
+                          <span
+                            className={`admin2-drag-handle ${draggingId === product.id ? "is-dragging" : ""}`}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, product.id)}
+                            onDragEnd={handleDragEnd}
+                            title="Kéo để sắp xếp"
+                            aria-label="Kéo để sắp xếp"
+                          >
+                            ☰
+                          </span>
+                          <small className="admin2-order-index">{index + 1}</small>
+                        </td>
+                      )}
                       <td>
                         <div className="admin2-product-cell">
                           <div className={`polaroid-frame-mini ${index % 2 === 0 ? "rotate-left" : "rotate-right"}`}>
@@ -583,36 +732,38 @@ export default function AdminProductsPage() {
                     </tr>
                   );
                 })}
-                {pageItems.length === 0 && (
+                {(manualMode ? manualItems : pageItems).length === 0 && (
                   <tr>
-                    <td colSpan={7} className="admin-table__empty">Không có sản phẩm phù hợp.</td>
+                    <td colSpan={manualMode ? 8 : 7} className="admin-table__empty">Không có sản phẩm phù hợp.</td>
                   </tr>
                 )}
               </tbody>
             </table>
           </div>
 
-          <div className="admin2-pagination">
-            <span>Hiển thị {pageItems.length === 0 ? 0 : (pageSafe - 1) * PAGE_SIZE + 1} - {(pageSafe - 1) * PAGE_SIZE + pageItems.length} trong {filtered.length} kỷ vật</span>
-            <div className="admin2-pagination__buttons">
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter((p) => p === 1 || p === totalPages || Math.abs(p - pageSafe) <= 1)
-                .reduce((acc, p, i, arr) => {
-                  if (i > 0 && p - arr[i - 1] > 1) acc.push("...");
-                  acc.push(p);
-                  return acc;
-                }, [])
-                .map((p, i) =>
-                  p === "..." ? (
-                    <span key={`ellipsis-${i}`} className="admin2-pagination__ellipsis">...</span>
-                  ) : (
-                    <button key={p} className={p === pageSafe ? "is-active" : ""} onClick={() => setPage(p)}>
-                      {p}
-                    </button>
-                  )
-                )}
+          {!manualMode && (
+            <div className="admin2-pagination">
+              <span>Hiển thị {pageItems.length === 0 ? 0 : (pageSafe - 1) * PAGE_SIZE + 1} - {(pageSafe - 1) * PAGE_SIZE + pageItems.length} trong {sortedFiltered.length} kỷ vật</span>
+              <div className="admin2-pagination__buttons">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((p) => p === 1 || p === totalPages || Math.abs(p - pageSafe) <= 1)
+                  .reduce((acc, p, i, arr) => {
+                    if (i > 0 && p - arr[i - 1] > 1) acc.push("...");
+                    acc.push(p);
+                    return acc;
+                  }, [])
+                  .map((p, i) =>
+                    p === "..." ? (
+                      <span key={`ellipsis-${i}`} className="admin2-pagination__ellipsis">...</span>
+                    ) : (
+                      <button key={p} className={p === pageSafe ? "is-active" : ""} onClick={() => setPage(p)}>
+                        {p}
+                      </button>
+                    )
+                  )}
+              </div>
             </div>
-          </div>
+          )}
         </>
       )}
 
