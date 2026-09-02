@@ -28,7 +28,9 @@ export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "", rememberMe: false });
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState(null);
+  const [serverErrorCode, setServerErrorCode] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [resendingOtp, setResendingOtp] = useState(false);
   const [providersResolved, setProvidersResolved] = useState(false);
   const [googleAvailable, setGoogleAvailable] = useState(SHOW_GOOGLE_UI_MOCK);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -69,6 +71,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setServerError(null);
+    setServerErrorCode(null);
     if (!validate()) return;
 
     setLoading(true);
@@ -77,9 +80,31 @@ export default function LoginPage() {
       login(res, form.rememberMe);
       navigate(destinationFor(res));
     } catch (err) {
-      setServerError(toApiError(err).message);
+      const apiError = toApiError(err);
+      setServerError(apiError.message);
+      setServerErrorCode(apiError.code);
     } finally {
       setLoading(false);
+    }
+  };
+
+  /** Tai khoan dang PENDING_VERIFICATION: gui OTP moi roi dua sang trang xac thuc. */
+  const handleResendAndVerify = async () => {
+    setServerError(null);
+    setResendingOtp(true);
+    try {
+      const res = await authApi.resendOtp({ email: form.email, purpose: "REGISTER" });
+      navigate("/verify-otp", {
+        state: {
+          email: form.email,
+          purpose: "REGISTER",
+          otpExpiresIn: res.details?.otpExpiresIn,
+        },
+      });
+    } catch (err) {
+      setServerError(toApiError(err).message);
+    } finally {
+      setResendingOtp(false);
     }
   };
 
@@ -123,6 +148,18 @@ export default function LoginPage() {
         <Alert type="error">
           {serverError}
         </Alert>
+      )}
+
+      {serverErrorCode === "ACCOUNT_PENDING_VERIFICATION" && (
+        <button
+          type="button"
+          className="btn btn-outline-shutter btn-block"
+          style={{ marginBottom: 16 }}
+          onClick={handleResendAndVerify}
+          disabled={resendingOtp}
+        >
+          {resendingOtp ? "Đang gửi mã..." : "Gửi lại mã OTP & xác thực ngay"}
+        </button>
       )}
 
       <form className="auth-form" onSubmit={handleSubmit} noValidate>
