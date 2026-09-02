@@ -4500,6 +4500,10 @@ form.auth-form {
     margin-bottom: 24px;
 }
 
+.product-price-tag:has(+ .product-price-weekly) {
+    margin-bottom: 4px;
+}
+
 .product-price-tag strong {
     font-family: var(--font-display);
     font-size: 32px;
@@ -4509,6 +4513,18 @@ form.auth-form {
 .product-price-tag span {
     font-family: var(--font-body);
     color: var(--text-lo);
+}
+
+.product-price-weekly {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--text-lo);
+    margin: 0 0 20px;
+}
+
+.product-price-weekly strong {
+    color: var(--primary);
+    font-weight: 700;
 }
 
 

@@ -353,6 +353,12 @@ function RentDetailView({
             <span>/ ngày</span>
           </div>
 
+          {product.rentPriceWeekly && (
+            <p className="product-price-weekly">
+              Thuê theo tuần: <strong>{formatPrice(product.rentPriceWeekly)}</strong> / tuần
+            </p>
+          )}
+
           {(product.rentPriceMorning || product.rentPriceAfternoon || product.rentPriceEvening) && (
             <div className="rental-hourly-price">
               <h3>⏰ Giá thuê theo khung giờ</h3>
