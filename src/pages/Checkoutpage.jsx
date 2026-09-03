@@ -285,18 +285,13 @@ export default function CheckoutPage() {
                 <div className="booking-form-row">
                   <label>
                     <span>Họ và tên</span>
-                    <input value={form.recipientName} onChange={setField("recipientName")} required placeholder="Nguyễn Văn A" />
+                    <input value={form.recipientName} onChange={setField("recipientName")} required placeholder="" />
                   </label>
                   <label>
                     <span>Số điện thoại</span>
-                    <input value={form.recipientPhone} onChange={setField("recipientPhone")} required placeholder="090 123 4567" />
+                    <input value={form.recipientPhone} onChange={setField("recipientPhone")} required placeholder="" />
                   </label>
                 </div>
-
-                <label className="booking-form-full">
-                  <span>Mã giảm giá (nếu có)</span>
-                  <input value={form.promotionCode} onChange={setField("promotionCode")} placeholder="VD: DIGISHOP10" />
-                </label>
 
                 {/* ---- Phần dưới đây khác nhau giữa MUA và THUÊ ---- */}
                 <span className="booking-form-full booking-form-full--label">Cách nhận hàng</span>
