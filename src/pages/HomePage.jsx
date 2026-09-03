@@ -222,21 +222,21 @@ export default function HomePage() {
                   <span>1</span>
                   <div>
                     <h4>Chọn sản phẩm phù hợp</h4>
-                    <p>Người dùng xem chi tiết, giá bán hoặc giá thuê theo ngày ngay từ thẻ sản phẩm.</p>
+                    <p>Xem thông số, hình ảnh thật và giá mua/thuê ngay trên sản phẩm.</p>
                   </div>
                 </article>
                 <article className="home-process-step">
                   <span>2</span>
                   <div>
-                    <h4>Xác nhận đơn hàng</h4>
-                    <p>Luồng thuê có thể chọn ngày và xác minh hồ sơ, còn luồng mua đi thẳng tới checkout giao hàng.</p>
+                    <h4>Đặt lịch hoặc đặt hàng</h4>
+                    <p>Thuê thì chọn ngày (tự tránh trùng lịch), mua thì điền thông tin giao hàng.</p>
                   </div>
                 </article>
                 <article className="home-process-step">
                   <span>3</span>
                   <div>
                     <h4>Thanh toán nhanh</h4>
-                    <p>Kết nối backend để hiển thị tổng tiền, ưu đãi, và cập nhật trạng thái thanh toán rõ ràng.</p>
+                    <p>Quét VietQR, đơn tự xác nhận, nhận tại cửa hàng hoặc giao tận nơi.</p>
                   </div>
                 </article>
               </div>
@@ -258,11 +258,11 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="home-cta-banner">
+          <section className="home-cta-banner">
           <div className="home-shell home-cta-banner__inner">
-            <h2>Bạn đã sẵn sàng chọn chiếc máy phù hợp cho buổi chụp tiếp theo?</h2>
+            <h2>Ngàn khung hình đẹp chỉ cách bạn một cú click</h2>
             <p>
-              Trang chủ giữ nguyên tinh thần của mẫu thiết kế, chỉ thay phần nội dung bằng dữ liệu động từ backend để còn nối tiếp các luồng mua và thuê.
+              Từ máy phổ thông đến cao cấp, DigiShop luôn có lựa chọn mua hoặc thuê phù hợp với ngân sách và buổi chụp của bạn.
             </p>
             <div className="home-cta-banner__actions">
               <Link to="/products?transactionType=rent" className="home-btn home-btn--primary">
